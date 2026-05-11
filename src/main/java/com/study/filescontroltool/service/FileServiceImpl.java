@@ -1,6 +1,5 @@
 package com.study.filescontroltool.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
@@ -150,6 +149,11 @@ public class FileServiceImpl implements FileService {
     @Override
     public List<FileMetadata> getFilesByType(String type) {
         return fileRepository.findAllByDocumentType(type);
+    }
+
+    @Override
+    public List<FileMetadata> getAllFiles() {
+        return fileRepository.findAll();
     }
 
     private String convertXmlToJson(MultipartFile file) throws IOException {

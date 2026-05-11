@@ -20,4 +20,6 @@ public interface FileService {
     List<FileMetadata> getFilesByCustomer(String customer);
 
     List<FileMetadata> getFilesByType(String type);
+
+    List<FileMetadata> getAllFiles();
 }
