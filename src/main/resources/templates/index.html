@@ -5,25 +5,89 @@
     <title>File Control Tool</title>
     <style>
         body { font-family: sans-serif; margin: 40px; }
-        .error { color: red; }
-        .success { color: green; }
-        .upload-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; }
+        .error { color: red; margin-bottom: 10px; }
+        .success { color: green; margin-bottom: 10px; }
+        section { margin-bottom: 40px; padding: 10px; border: 1px solid #ccc; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        form { display: inline; }
     </style>
 </head>
 <body>
 
-<h2>Керування файлами</h2>
+<h2>File</h2>
 
 <div th:if="${message}" class="success" th:text="${message}"></div>
 <div th:if="${error}" class="error" th:text="${error}"></div>
 
-<div class="upload-section">
-    <h3>Завантажити новий файл</h3>
+<section>
+    <h3>Upload / Replace</h3>
     <form method="POST" enctype="multipart/form-data" th:action="@{/files/upload}">
         <input type="file" name="file" required>
         <button type="submit">Upload</button>
     </form>
-</div>
+    <br><br>
+    <form method="POST" enctype="multipart/form-data" th:action="@{/files/replace}">
+        <input type="file" name="file" required>
+        <button type="submit">Replace</button>
+    </form>
+</section>
+
+<section>
+    <h3>Search / Filter</h3>
+    <div>
+        <input type="text" id="customerInput" placeholder="Customer name">
+        <button th:onclick="'window.location.href=\'/files/api/filter/customer/\' + document.getElementById(\'customerInput\').value'">Search by Customer</button>
+    </div>
+    <br>
+    <div>
+        <input type="date" id="dateInput">
+        <button th:onclick="'window.location.href=\'/files/api/filter/date/\' + document.getElementById(\'dateInput\').value'">Search by Date</button>
+    </div>
+    <br>
+    <div>
+        <input type="text" id="typeInput" placeholder="Document type">
+        <button th:onclick="'window.location.href=\'/files/api/filter/type/\' + document.getElementById(\'typeInput\').value'">Search by Type</button>
+    </div>
+</section>
+
+<section>
+    <h3>Список файлів</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>Назва</th>
+            <th>Клієнт</th>
+            <th>Тип</th>
+            <th>Дата</th>
+            <th>Дії</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="file : ${files}">
+            <td th:text="${file.fileName}"></td>
+            <td th:text="${file.customer}"></td>
+            <td th:text="${file.documentType}"></td>
+            <td th:text="${file.documentDate}"></td>
+            <td>
+                <a th:href="@{/files/api/content/{name}(name=${file.fileName})}" target="_blank">Переглянути</a>
+
+                |
+
+                <form th:action="@{/files/delete/{name}(name=${file.fileName})}" method="POST" style="display: inline;">
+                    <button type="submit" style="color: red; background: none; border: none; cursor: pointer; text-decoration: underline;"
+                            onclick="return confirm()">
+                        Видалити
+                    </button>
+                </form>
+            </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(files)}">
+            <td colspan="5">Файлів не знайдено</td>
+        </tr>
+        </tbody>
+    </table>
+</section>
 
 </body>
 </html>
