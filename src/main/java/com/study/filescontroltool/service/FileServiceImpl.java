@@ -89,32 +89,79 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
+    @Transactional
     public FileMetadata replaceFile(MultipartFile file) {
-        return null;
+        String fileName = file.getOriginalFilename();
+        log.info("Replacing file: {}", fileName);
+
+        FileMetadata metadata = fileRepository.findByFileName(fileName)
+                .orElseGet(() -> validateAndParse(fileName));
+
+        try {
+            metadata.setJsonContent(convertXmlToJson(file));
+
+            saveToFileSystem(file, fileName);
+
+            metadata.setFilePath(rootLocation.resolve(fileName).toString());
+
+            return fileRepository.save(metadata);
+        } catch (IOException e) {
+            log.error("Failed to replace file {}", fileName, e);
+            throw new RuntimeException("Could not replace file.");
+        }
     }
 
     @Override
+    @Transactional
     public void deleteFile(String fileName) {
+        FileMetadata metadata = fileRepository.findByFileName(fileName)
+                .orElseThrow(() -> new RuntimeException("File not found: " + fileName));
 
+        try {
+            Path filePath = Paths.get(metadata.getFilePath());
+            Files.deleteIfExists(filePath);
+            log.info("Physical file deleted: {}", filePath);
+
+            fileRepository.delete(metadata);
+            log.info("Metadata deleted from DB for file: {}", fileName);
+
+        } catch (IOException e) {
+            log.error("Could not delete file: {}", fileName);
+            throw new RuntimeException("Error deleting file");
+        }
     }
 
     @Override
     public FileMetadata getFileByName(String fileName) {
-        return null;
+        return fileRepository.findByFileName(fileName)
+                .orElseThrow(() -> new RuntimeException("File not found: {}" + fileName));
     }
 
     @Override
     public List<FileMetadata> getFilesByDate(LocalDate date) {
-        return List.of();
+        return fileRepository.findAllByDocumentDate(date);
     }
 
     @Override
     public List<FileMetadata> getFilesByCustomer(String customer) {
-        return List.of();
+        return fileRepository.findAllByCustomer(customer);
     }
 
     @Override
     public List<FileMetadata> getFilesByType(String type) {
-        return List.of();
+        return fileRepository.findAllByDocumentType(type);
+    }
+
+    private String convertXmlToJson(MultipartFile file) throws IOException {
+        JsonNode xml = xmlMapper.readTree(file.getInputStream());
+        return jsonMapper.writeValueAsString(xml);
+    }
+
+    private void saveToFileSystem(MultipartFile file, String fileName) throws IOException {
+        if (!Files.exists(rootLocation)) {
+            Files.createDirectories(rootLocation);
+        }
+        Path destinationFile = rootLocation.resolve(fileName);
+        Files.copy(file.getInputStream(), destinationFile, StandardCopyOption.REPLACE_EXISTING);
     }
 }

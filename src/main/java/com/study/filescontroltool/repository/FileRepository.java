@@ -18,4 +18,6 @@ public interface FileRepository extends JpaRepository<FileMetadata, UUID> {
     List<FileMetadata> findAllByCustomer(String customer);
 
     List<FileMetadata> findAllByDocumentType(String type);
+
+    void deleteByFileName(String fileName);
 }
