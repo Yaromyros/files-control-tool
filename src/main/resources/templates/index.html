@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>File Control Tool</title>
+    <style>
+        body { font-family: sans-serif; margin: 40px; }
+        .error { color: red; }
+        .success { color: green; }
+        .upload-section { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+<h2>Керування файлами</h2>
+
+<div th:if="${message}" class="success" th:text="${message}"></div>
+<div th:if="${error}" class="error" th:text="${error}"></div>
+
+<div class="upload-section">
+    <h3>Завантажити новий файл</h3>
+    <form method="POST" enctype="multipart/form-data" th:action="@{/files/upload}">
+        <input type="file" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
+</div>
+
+</body>
+</html>
