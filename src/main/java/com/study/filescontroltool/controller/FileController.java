@@ -5,6 +5,7 @@ import com.study.filescontroltool.service.FileService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +26,8 @@ public class FileController {
     private final FileService fileService;
 
     @GetMapping
-    public String mainPage() {
+    public String mainPage(Model model) {
+        model.addAttribute("files", fileService.getAllFiles());
         return "index";
     }
 
