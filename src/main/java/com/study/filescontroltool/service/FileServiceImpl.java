@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.study.filescontroltool.model.FileMetadata;
 import com.study.filescontroltool.repository.FileRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,18 +23,15 @@ import java.util.regex.Pattern;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
     private final FileRepository fileRepository;
-    private final XmlMapper xmlMapper = new XmlMapper();
-    private final ObjectMapper jsonMapper = new ObjectMapper();
+    private final XmlMapper xmlMapper;
+    private final ObjectMapper jsonMapper;
     private final Path rootLocation = Paths.get("upload");
 
     private static final Pattern FILE_NAME_PATTERN =
             Pattern.compile("^(?<customer>[^_]+)_(?<type>[^_]+)_(?<date>\\d{4}-\\d{2}-\\d{2})\\.xml$");
-
-    public FileServiceImpl(FileRepository fileRepository) {
-        this.fileRepository = fileRepository;
-    }
 
     private FileMetadata validateAndParse(String fileName) {
         Matcher matcher = FILE_NAME_PATTERN.matcher(fileName);
